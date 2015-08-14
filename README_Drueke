@@ -86,3 +86,7 @@ script.
 **** Outputs: creates .pck file int he pseudo_outputs directory and puts 
 results and calibration plots in the plots subdirectory of the pseudo_outputs 
 directory.
+
+Final Note: On my last day there were still several issues with the systematics 
+table.  I have not taken Pedro's fixes to these bugs to my own git, so he has 
+the most updated scripts for this.
