@@ -11,6 +11,9 @@ from cmsIO import cmsFile
 
 """
 Create the histograms for the input for the pseudo data fit.  Each histogram has bkg + ttbar (for some mass) + singlet (for some mass or systematic).
+Histograms are weighted either by the runPlotter script or by the runMassPlotter script.  
+
+NOTE: I'M NOT SURE THAT THE SYSTEMATICS FROM THE DIFFERENT ROOT FILES ARE WEIGHTED PROPERLY BECAUSE I WAS NEVER ABLE TO RUN THE RUNPLOTTER SCRIPT ON THEM.  THIS MAY BE WORTH CHECKING.
 """
 def makePseudoInputPlots(outDir):
 
