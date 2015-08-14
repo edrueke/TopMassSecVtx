@@ -11,7 +11,7 @@ sys.path.append('/afs/cern.ch/cms/caf/python/')
 from cmsIO import cmsFile
 
 """
-Create the mass scan plots. - possible bug?
+Create the mass scan plots.
 """
 def makeMassScanPlots(outDir):
 
@@ -249,7 +249,10 @@ def makeTTbarPlots(outDir,norm=None):
                 hist2 = ROOT.TH1F()
                 ROOT.gDirectory.GetObject(name,hist2)
                 hist1.Add(hist2.Clone(),-1)
+
+        #For the background models:
         histos_unweighted[tag+'_data_BDT']=hist1.Clone()
+
         hist1.Rebin()
         hist1.SetFillColor(0)
         if norm=='norm':
@@ -320,6 +323,7 @@ def makeTTbarPlots(outDir,norm=None):
     else:
         ratplot.show('tt_e_compare',outDir)
         
+    #For background models - weight to MC weight in the signal region.  This weighting takes care of weighting in pseudo-data and fit scripts.  Very important!
     histos_unweighted['e3j_data_BDT'].Scale(scales['e2j']/(histos_unweighted['e3j_data_BDT'].Integral()))
     histos_unweighted['e3j_data_BDT'].SaveAs(outDir+'bkg_templates/ttbar_template_e.root')
     histos_unweighted['mu3j_data_BDT'].Scale(scales['mu2j']/(histos_unweighted['mu3j_data_BDT'].Integral()))
@@ -433,7 +437,10 @@ def makeQCDPlots(outDir, norm=None):
                 ROOT.gDirectory.GetObject(name,hist2)
                 hist1.Add(hist2.Clone(),-1)
         hist1.SetTitle('')
+
+        #For background models
         histos_unscaled[tag+'_data']=hist1.Clone()
+
         hist1.Rebin()
         hist1.SetFillColor(0)
         if norm=='norm':
@@ -470,6 +477,7 @@ def makeQCDPlots(outDir, norm=None):
         else:
             ratplot.show('qcd_'+tag+'_compare',outDir)
 
+        #For background models - weight to MC weight in the signal region.  This weighting takes care of weighting in pseudo-data and fit scripts.  Very important!
         histos_unscaled[tag+'_data'].Scale(scales[tag]/(histos_unscaled[tag+'_data'].Integral()))
         histos_unscaled[tag+'_data'].SaveAs(outDir+'bkg_templates/QCD_template_'+tag+'.root')
         
@@ -588,6 +596,7 @@ def makeWJetsPlots(outDir,norm=None):
         else:
             ratplot.show('wjets_'+tag+'_compare',outDir)
 
+        #For background models - weight to MC weight in the signal region.  This weighting takes care of weighting in pseudo-data and fit scripts.  Very important!
         histos_unscaled[tag].SaveAs(outDir+'bkg_templates/WJets_template_'+tag+'.root')
 
         can = ROOT.TCanvas()
