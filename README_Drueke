@@ -1,0 +1,88 @@
+Commands used to run everything:
+
+After compiling,
+
+#### To create the initial files:
+./scripts/runLxyTreeAnalysis.py -o treedir_bbbcb36/singlet/ /store/cmst3/group/top/summer2015/bbbcb36/ -b
+
+#### To merge the files:
+./scripts/mergeSVLInfoFiles.py treedir_bbbcb36/singlet/
+
+#### To run the analysis:
+python scripts/runSVLSingleTop.py treedir_bbbcb36/singlet/ --jobs 8 -o singleTop/rootfiles_base/
+
+#### To create the plots:
+runPlotter.py -l 19701 -j test/topssum/samples.json -o singleTop/plots_base/ singleTop/rootfiles_base/ --cutUnderOverFlow
+**** Keep in mind that there was an issue with the json file input for the 
+systematics from the other rootfiles
+
+#### To create the mass plots, background templates, and systematic ratio plots:
+python scripts/runMassPlotter.py
+**** Note: There are not currently options for input/output files in this 
+script.  Instead, you need to create a directory singleTop/ratio_plots/ with 
+subdirectories bkg_templates/ and syst/ before running.  Otherwise it doesn't 
+save the plots.
+**** Note: Currently, the plots pop up on the screen as they are created.  I 
+think there is a batch mode issue, but I never fixed it because it was a 
+convenient way to see what was being created.
+**** Note: There was discussion of creating an option in the ratio plot class 
+to plot the histogram as data dots.  If so, this will have to be implemented 
+for the data in this script.
+**** Outputs: makes ratio plots for different masses (single top and ttbar), 
+systematics, and backgrounds (to test for the proper background template).  
+Also outputs the background templates.
+
+#### Before running the fit script:
+cd singleTop/
+mkdir svlfit_inputs/
+cd rootfiles_base/
+cp MC8TeV_TTJets_* ../svlfit_inputs/
+cp MC8TeV_SingleT* ../svlfit_inputs/
+cd ../ratio_plots/bkg_templates/
+cp *.root ../../svlfit_inputs/
+cd ../../rootfiles_mass_scans/
+cp * ../svlfit_inputs/
+**** Note: The fit script requires specific input files in order to work 
+properly.  The signal and ttbar are weighted by the fit script, and the 
+background templates are weighted by the MassPlotter script.
+
+### To run the fit script:
+python scripts/runSVLSingleTopFits.py singleTop/svlfit_inputs/ -o singleTop/svlfit_outputs/ [-v 1]
+**** Note: Arguments in [] are optional
+**** Outputs: makes the fits, puts SVLWorkspace.root into the output directory 
+as well as a plots directory with the pdf and png images of various fits for 
+single top, ttbar, and background at different top masses.
+
+#### To create the input file for the pseudo data script
+python scripts/runPseudoInput.py
+**** Note: There are currently no options for input/output files.  These will 
+need to be changed in the script itself.  This script puts out one rootfile 
+with al of the pseudo data input histograms.  In order to run it, you need to 
+first create a directory singleTop/pseudo_inputs/.  If you want to run it more 
+than once, you need to first delete the output file.  Otherwise you get errors.
+**** Note: Ordinarily there is no printed output for this script.
+**** Outputs: one rootfile in the output directory which is used as the input 
+for the pseudo data script.
+ 
+#### To create the pseudo data:
+./scripts/runSVLSingleTopPEs.py singleTop/svlfit_outputs/SVLWorkspace.root singleTop/pseudo_inputs/pseudo_inputs.root [mass_check_172] [-n 200] [-v 2] [-o singleTop/pseudo_outputs/] [-c singleTop/pseudo_outputs/.svlcalib.pck] [--spy]
+**** Note: Options in [] are optional.
+**** Note: You must specify mass_check_<mass> or syst_<syst> as an argument 
+right now.  The submit to batch option is not currently working.
+**** Note: Typically, run all mass_check and syst options into the 
+pseudo_outputs/ directory without the -c option, then run the summarizing 
+script (below), then rerun all of the mass_check and syst options into a 
+pseudo_output_calib directory with the -c option.
+**** Note: --spy option works but then dies in a segmentation fault after it 
+generates the pseduo data plots.
+**** Outputs: makes _results.root files for the mass_check and syst options 
+specified and creates an empty plots directory. --spy option puts pseudo data 
+plots into the plots directory.
+
+### To summarize results.
+python scripts/summarizeSVLresults_new.py --calib=singleTop/pseudo_outputs/
+**** Note: Must use the _new script.  The other script is still the ttbar 
+script.  
+**** Outputs: creates .pck file int he pseudo_outputs directory and puts 
+results and calibration plots in the plots subdirectory of the pseudo_outputs 
+directory.
